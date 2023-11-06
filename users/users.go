@@ -2,10 +2,10 @@ package users
 
 type User struct {
 	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Nickname  string `json:"nickname"`
-	Mail      string `json:"mail"`
-	Cellphone int    `json:"cellphone"`
+	Name      string `json:"name" binding:"required"`
+	Nickname  string `json:"nickname" binding:"required"`
+	Mail      string `json:"mail" binding:"required"`
+	Cellphone int    `json:"cellphone" binding:"required"`
 }
 
 var Users_example []User
