@@ -17,6 +17,21 @@ func getUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, users.Users_example)
 }
 
+func getUser(c *gin.Context) {
+	id := c.Param("id")
+
+	for index, user := range users.Users_example {
+		if user.ID == id {
+			c.JSON(http.StatusOK, &users.Users_example[index])
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{
+		"message": "The user with id " + id + " was not found.",
+	})
+}
+
 func newUser(c *gin.Context) {
 	var new_user users.User
 
@@ -41,6 +56,7 @@ func main() {
 
 	r.GET("/", mainPage)
 	r.GET("/users", getUsers)
+	r.GET("/user/:id", getUser)
 	r.POST("/user", newUser)
 	r.Run("localhost:3000")
 }
