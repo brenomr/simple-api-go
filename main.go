@@ -51,6 +51,21 @@ func newUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, new_user)
 }
 
+func delUser(c *gin.Context) {
+	id := c.Param("id")
+
+	// Useful information (not the best practice to use, but for now it's enough):
+	// https://stackoverflow.com/questions/31080285/remove-element-by-value-in-go-list
+
+	for index, user := range users.Users_example {
+		if user.ID == id {
+			users.Users_example = append(users.Users_example[:index], users.Users_example[index+1:]...)
+		}
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func main() {
 	r := gin.Default()
 
@@ -58,5 +73,6 @@ func main() {
 	r.GET("/users", getUsers)
 	r.GET("/user/:id", getUser)
 	r.POST("/user", newUser)
+	r.DELETE("/user/:id", delUser)
 	r.Run("localhost:3000")
 }
