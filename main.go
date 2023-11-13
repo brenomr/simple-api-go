@@ -13,6 +13,20 @@ func mainPage(c *gin.Context) {
 	})
 }
 
+func validUser(user users.User, c *gin.Context) (bool, users.User) {
+	// More info: https://gin-gonic.com/docs/examples/binding-and-validation
+
+	if err := c.BindJSON(&user); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		c.Abort()
+		return false, user
+	}
+
+	return true, user
+}
+
 func getUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, users.Users_example)
 }
@@ -35,20 +49,10 @@ func getUser(c *gin.Context) {
 func newUser(c *gin.Context) {
 	var new_user users.User
 
-	// Useful information:
-	// https://gin-gonic.com/docs/examples/binding-and-validation
-
-	if err := c.BindJSON(&new_user); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		c.Abort()
-		return
+	if valid_user, new_user := validUser(new_user, c); valid_user {
+		users.Users_example = append(users.Users_example, new_user)
+		c.JSON(http.StatusCreated, new_user)
 	}
-
-	users.Users_example = append(users.Users_example, new_user)
-
-	c.JSON(http.StatusCreated, new_user)
 }
 
 func deleteUser(c *gin.Context) {
@@ -71,20 +75,12 @@ func updateUser(c *gin.Context) {
 
 	var user_to_update users.User
 
-	err := c.BindJSON(&user_to_update)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		c.Abort()
-		return
-	}
-
-	for index, user := range users.Users_example {
-		if user.ID == id {
-			user_to_update.ID = id
-			users.Users_example[index] = user_to_update
+	if valid_user, user_to_update := validUser(user_to_update, c); valid_user {
+		for index, user := range users.Users_example {
+			if user.ID == id {
+				user_to_update.ID = id
+				users.Users_example[index] = user_to_update
+			}
 		}
 	}
 }
