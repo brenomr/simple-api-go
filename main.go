@@ -51,7 +51,7 @@ func newUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, new_user)
 }
 
-func delUser(c *gin.Context) {
+func deleteUser(c *gin.Context) {
 	id := c.Param("id")
 
 	// Useful information (not the best practice to use, but for now it's enough):
@@ -66,6 +66,29 @@ func delUser(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+func updateUser(c *gin.Context) {
+	id := c.Param("id")
+
+	var user_to_update users.User
+
+	err := c.BindJSON(&user_to_update)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	for index, user := range users.Users_example {
+		if user.ID == id {
+			user_to_update.ID = id
+			users.Users_example[index] = user_to_update
+		}
+	}
+}
+
 func main() {
 	r := gin.Default()
 
@@ -73,6 +96,7 @@ func main() {
 	r.GET("/users", getUsers)
 	r.GET("/user/:id", getUser)
 	r.POST("/user", newUser)
-	r.DELETE("/user/:id", delUser)
+	r.DELETE("/user/:id", deleteUser)
+	r.PUT("/user/:id", updateUser)
 	r.Run("localhost:3000")
 }
