@@ -60,13 +60,17 @@ func deleteUser(c *gin.Context) {
 
 	// Useful information (not the best practice to use, but for now it's enough):
 	// https://stackoverflow.com/questions/31080285/remove-element-by-value-in-go-list
+	// This method need to be improved, not the best practice
 
-	for index, user := range users.Users_example {
-		if user.ID == id {
-			users.Users_example = append(users.Users_example[:index], users.Users_example[index+1:]...)
+	keep_users := make([]users.User, 0)
+
+	for _, user := range users.Users_example {
+		if user.ID != id {
+			keep_users = append(keep_users, user)
 		}
 	}
 
+	users.Users_example = keep_users
 	c.JSON(http.StatusNoContent, nil)
 }
 
